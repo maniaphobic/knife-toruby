@@ -43,6 +43,11 @@ class Chef
     def self.role_to_ruby(role)
       ruby = RubyIO.new
 
+      # Emit a string encoding header to satisfy Rubocop
+      ruby.write('# encoding: utf-8')
+      ruby.new_line
+      ruby.new_line
+
       # Name
       ruby.write_method("name", role.name)
       ruby.new_line
