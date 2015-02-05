@@ -62,6 +62,7 @@ class Chef
       # Run list
       if role.env_run_lists.size <= 1
         ruby.write_method("run_list", *role.run_list.map{|val| val.to_s})
+#DISABLED#        ruby.write_method("run_list", *role.run_list.map{|val| val.to_s})
       else
         ruby.write_method("env_run_lists", Hash[role.env_run_lists.map{|k, v| [k, v.map{|val| val.to_s}]}])
       end
@@ -100,7 +101,7 @@ class Chef
 
     class RubyIO
 
-      @@inspector =AwesomePrint::Inspector.new :plain => true, :indent => 2, :index => false
+      @@inspector =AwesomePrint::Inspector.new :plain => true, :indent => 2, :index => false, :multiline => true
 
       def initialize
         @out = StringIO.new
@@ -112,7 +113,7 @@ class Chef
 
         arg_values = args.map do |arg|
           if arg.is_a? String
-            arg.inspect
+            CustomString.new(arg).inspect
           elsif arg.is_a? Hash
             format(arg)
           else
@@ -136,12 +137,24 @@ class Chef
       end
 
       def string
-        @out.string
+        @out.string.rstrip
       end
 
       def format(obj)
         @@inspector.awesome obj
       end
+
+    end
+
+    class CustomString < String
+
+      def initialize(new_string)
+        @string = new_string
+      end
+
+      def inspect() to_s end
+
+      def to_s() "'#{@string}'" end
 
     end
 
