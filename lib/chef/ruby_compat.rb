@@ -67,7 +67,6 @@ class Chef
       # Run list
       if role.env_run_lists.size <= 1
         ruby.write_method("run_list", *role.run_list.map{|val| val.to_s})
-#DISABLED#        ruby.write_method("run_list", *role.run_list.map{|val| val.to_s})
       else
         ruby.write_method("env_run_lists", Hash[role.env_run_lists.map{|k, v| [k, v.map{|val| val.to_s}]}])
       end
@@ -114,7 +113,7 @@ class Chef
 
       def write_method(method_name, *args)
         write method_name
-        write("(")
+        write("(\n")
 
         arg_values = args.map do |arg|
           if arg.is_a? String
@@ -126,9 +125,9 @@ class Chef
           end
         end
 
-        write(arg_values.join(", "))
+        write(arg_values.join(",\n").gsub(/^/, '  '))
 
-        write(")")
+        write("\n)")
 
         new_line
       end
@@ -142,10 +141,12 @@ class Chef
       end
 
       def string
+        # Strip trailing whitespace to satisfy Rubocop
         @out.string.rstrip
       end
 
       def format(obj)
+#DEBUG#        $stderr.write("!!!: obj =>#{obj}<=\n") #DEBUG#
         @@inspector.awesome obj
       end
 
